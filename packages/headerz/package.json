@@ -1,0 +1,45 @@
+{
+  "name": "headerz",
+  "version": "0.0.0",
+  "description": "Type helpers for headers",
+  "author": "Tim Morris <timthewebguy@gmail.com>",
+  "homepage": "https://github.com/tkofh/headerz#readme",
+  "license": "MIT",
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/frame/index.cjs",
+  "module": "./dist/frame/index.mjs",
+  "types": "./dist/frame/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/frame/index.cjs",
+      "import": "./dist/frame/index.mjs",
+      "types": "./dist/frame/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tkofh/headerz.git"
+  },
+  "scripts": {
+    "build": "unbuild",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "prepublish": "bun run build"
+  },
+  "bugs": {
+    "url": "https://github.com/tkofh/headerz/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.7",
+    "@vitest/coverage-v8": "^1.6.0",
+    "@vitest/ui": "^1.6.0",
+    "unbuild": "^2.0.0",
+    "vitest": "^1.6.0"
+  },
+  "dependencies": {}
+}
