@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { cacheControl } from '../src/cacheControl'
+import { cacheControl } from '../src'
 import {
   normalizeRequestCacheControl,
   parseRequestCacheControl,

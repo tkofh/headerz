@@ -8,7 +8,7 @@
     "check": "biome check --write --unsafe .",
     "check:report": "biome check .",
     "prepare": "lefthook install",
-    "publish-packages": "pnpm check:report && turbo run build test:run && changeset version && changeset publish && pnpm check"
+    "publish-packages": "bun check:report && turbo run build test:run && changeset version && changeset publish && bun check"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.2",
@@ -19,5 +19,5 @@
     "typescript": "^5.5.2",
     "vitest": "^1.6.0"
   },
-  "packageManager": "pnpm@9.6.0+sha512.38dc6fba8dba35b39340b9700112c2fe1e12f10b17134715a4aa98ccf7bb035e76fd981cf0bb384dfa98f8d6af5481c2bef2f4266a24bfa20c34eb7147ce0b5e"
+  "packageManager": "bun@1.1.21"
 }
