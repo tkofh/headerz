@@ -74,7 +74,7 @@ describe('request', () => {
   test('normalize', () => {
     expect(normalizeRequestCacheControl('max-age=100')).toEqual('max-age=100')
     expect(normalizeRequestCacheControl('no-cache, max-age=100')).toEqual(
-      'max-age=100, no-cache',
+      'max-age=100,no-cache',
     )
     expect(
       normalizeRequestCacheControl('max-age=100, no-cache, no-store'),
@@ -124,7 +124,7 @@ describe('response', () => {
   test('normalize', () => {
     expect(normalizeResponseCacheControl('max-age=100')).toEqual('max-age=100')
     expect(normalizeResponseCacheControl('no-cache, max-age=100')).toEqual(
-      'max-age=100, no-cache',
+      'max-age=100,no-cache',
     )
     expect(
       normalizeResponseCacheControl('max-age=100, no-cache, no-store'),

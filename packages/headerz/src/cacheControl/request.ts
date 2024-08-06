@@ -1,8 +1,8 @@
 import { BooleanDirective } from '../directives/boolean'
 import { DurationDirective } from '../directives/duration'
 import { DirectiveParser } from '../directives/parse'
-import { type Duration, duration } from '../duration'
-import { hasProperty, isRecord } from '../utils/predicates'
+import { type Duration, duration, isDuration } from '../duration'
+import { hasProperty, isBoolean, isRecord } from '../utils/predicates'
 import type { Falsifiable } from '../utils/types'
 import {
   CacheControl,
@@ -39,6 +39,64 @@ export class RequestCacheControl
   ] as const
 
   readonly [TypeBrand]: TypeBrand = TypeBrand
+
+  constructor(directives: Partial<RequestCacheControlDirectives> = {}) {
+    if (
+      hasProperty(directives, 'max-age') &&
+      (!isBoolean(directives['max-age']) || directives['max-age']) &&
+      !isDuration(directives['max-age'])
+    ) {
+      throw new TypeError('Invalid max-age, expected a duration or false')
+    }
+    if (
+      hasProperty(directives, 'max-stale') &&
+      (!isBoolean(directives['max-stale']) || directives['max-stale']) &&
+      !isDuration(directives['max-stale'])
+    ) {
+      throw new TypeError('Invalid max-stale, expected a duration or false')
+    }
+    if (
+      hasProperty(directives, 'min-fresh') &&
+      (!isBoolean(directives['min-fresh']) || directives['min-fresh']) &&
+      !isDuration(directives['min-fresh'])
+    ) {
+      throw new TypeError('Invalid min-fresh, expected a duration or false')
+    }
+    if (
+      hasProperty(directives, 'no-cache') &&
+      !isBoolean(directives['no-cache'])
+    ) {
+      throw new TypeError('Invalid no-cache, expected a boolean')
+    }
+    if (
+      hasProperty(directives, 'no-store') &&
+      !isBoolean(directives['no-store'])
+    ) {
+      throw new TypeError('Invalid no-store, expected a boolean')
+    }
+    if (
+      hasProperty(directives, 'no-transform') &&
+      !isBoolean(directives['no-transform'])
+    ) {
+      throw new TypeError('Invalid no-transform, expected a boolean')
+    }
+    if (
+      hasProperty(directives, 'only-if-cached') &&
+      !isBoolean(directives['only-if-cached'])
+    ) {
+      throw new TypeError('Invalid only-if-cached, expected a boolean')
+    }
+    if (
+      hasProperty(directives, 'stale-if-error') &&
+      (!isBoolean(directives['stale-if-error']) ||
+        directives['stale-if-error']) &&
+      !isDuration(directives['stale-if-error'])
+    ) {
+      throw new TypeError('Invalid stale-if-error, expected a duration')
+    }
+
+    super(directives)
+  }
 
   get 'max-stale'(): number | false {
     return this.directives['max-stale'] !== undefined &&

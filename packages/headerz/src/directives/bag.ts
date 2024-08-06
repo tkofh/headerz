@@ -17,6 +17,10 @@ export class DirectiveBag<
     return []
   }
 
+  protected get separator(): string {
+    return ','
+  }
+
   static [Symbol.hasInstance](value: unknown) {
     return isDirectiveBag(value)
   }
@@ -52,7 +56,7 @@ export class DirectiveBag<
           }
         }
       }
-      this.stringified = directives.join(', ')
+      this.stringified = directives.join(this.separator)
     }
 
     return this.stringified

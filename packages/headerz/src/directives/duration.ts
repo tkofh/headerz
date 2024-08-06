@@ -5,10 +5,8 @@ import type { KeysOfType } from '../utils/types'
 import { DirectiveBag } from './bag'
 
 export class DurationDirective<
-  Bag extends DirectiveBag<Record<string, unknown>>,
+  Bag extends DirectiveBag<Record<string, boolean | Duration>>,
 > {
-  constructor(private readonly name: KeysOfType<Bag, Duration | false>) {}
-
   readonly set: {
     <Self extends Bag>(self: Self, value: Duration | false): Self
     <Self extends Bag>(self: Self, unit: DurationUnit, value: number): Self
@@ -40,7 +38,6 @@ export class DurationDirective<
       return self.with(this.name, duration(valueOrUnit))
     }.bind(this),
   )
-
   readonly withMin: {
     <Self extends Bag>(self: Self, value: Duration): Self
     <Self extends Bag>(self: Self, unit: DurationUnit, value: number): Self
@@ -75,7 +72,6 @@ export class DurationDirective<
       return self.with(this.name, Math.max(current, min))
     }.bind(this),
   )
-
   readonly withMax: {
     <Self extends Bag>(self: Self, value: Duration): Self
     <Self extends Bag>(self: Self, unit: DurationUnit, value: number): Self
@@ -110,7 +106,6 @@ export class DurationDirective<
       return self.with(this.name, Math.min(current, max))
     }.bind(this),
   )
-
   readonly clamp: {
     <Self extends Bag>(self: Self, min: Duration, max: Duration): Self
     <Self extends Bag>(
@@ -179,7 +174,6 @@ export class DurationDirective<
       )
     }.bind(this),
   )
-
   readonly offset: {
     <Self extends Bag>(self: Self, value: Duration): Self
     <Self extends Bag>(self: Self, unit: DurationUnit, value: number): Self
@@ -214,7 +208,6 @@ export class DurationDirective<
       return self.with(this.name, Math.max(current + offset, 0))
     }.bind(this),
   )
-
   readonly scale: {
     <Self extends Bag>(self: Self, value: number): Self
     <Self extends Bag>(self: Self, unit: DurationUnit, value: number): Self
@@ -249,4 +242,6 @@ export class DurationDirective<
       return self.with(this.name, Math.max(current * scale, 0))
     }.bind(this),
   )
+
+  constructor(private readonly name: KeysOfType<Bag, Duration | false>) {}
 }

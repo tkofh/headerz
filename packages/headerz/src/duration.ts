@@ -112,3 +112,25 @@ export function duration(
 
   return normalized.amount * scales[normalized.unit]
 }
+
+export function isDuration(value: unknown): value is Duration {
+  return (
+    (isNumber(value) && value >= 0) ||
+    (isRecord(value) &&
+      ((hasProperty(value, 'seconds') &&
+        isNumber(value.seconds) &&
+        value.seconds >= 0) ||
+        (hasProperty(value, 'minutes') &&
+          isNumber(value.minutes) &&
+          value.minutes >= 0) ||
+        (hasProperty(value, 'hours') &&
+          isNumber(value.hours) &&
+          value.hours >= 0) ||
+        (hasProperty(value, 'days') &&
+          isNumber(value.days) &&
+          value.days >= 0) ||
+        (hasProperty(value, 'years') &&
+          isNumber(value.years) &&
+          value.years >= 0)))
+  )
+}

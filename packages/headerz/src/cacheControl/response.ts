@@ -1,8 +1,8 @@
 import { BooleanDirective } from '../directives/boolean'
 import { DurationDirective } from '../directives/duration'
 import { DirectiveParser } from '../directives/parse'
-import { type Duration, duration } from '../duration'
-import { hasProperty, isRecord } from '../utils/predicates'
+import { type Duration, duration, isDuration } from '../duration'
+import { hasProperty, isBoolean, isRecord } from '../utils/predicates'
 import type { Falsifiable } from '../utils/types'
 import {
   CacheControl,
@@ -49,6 +49,91 @@ export class ResponseCacheControl
   ] as const
 
   readonly [TypeBrand]: TypeBrand = TypeBrand
+
+  constructor(directives: Partial<ResponseCacheControlDirectives> = {}) {
+    if (
+      hasProperty(directives, 'max-age') &&
+      (!isBoolean(directives['max-age']) || directives['max-age']) &&
+      !isDuration(directives['max-age'])
+    ) {
+      throw new TypeError('Invalid max-age, expected a duration or false')
+    }
+    if (
+      hasProperty(directives, 'must-revalidate') &&
+      !isBoolean(directives['must-revalidate'])
+    ) {
+      throw new TypeError('Invalid must-revalidate, expected a boolean')
+    }
+    if (
+      hasProperty(directives, 'must-understand') &&
+      !isBoolean(directives['must-understand'])
+    ) {
+      throw new TypeError('Invalid must-understand, expected a boolean')
+    }
+    if (
+      hasProperty(directives, 'no-cache') &&
+      !isBoolean(directives['no-cache'])
+    ) {
+      throw new TypeError('Invalid no-cache, expected a boolean')
+    }
+    if (
+      hasProperty(directives, 'no-store') &&
+      !isBoolean(directives['no-store'])
+    ) {
+      throw new TypeError('Invalid no-store, expected a boolean')
+    }
+    if (
+      hasProperty(directives, 'no-transform') &&
+      !isBoolean(directives['no-transform'])
+    ) {
+      throw new TypeError('Invalid no-transform, expected a boolean')
+    }
+    if (hasProperty(directives, 'private') && !isBoolean(directives.private)) {
+      throw new TypeError('Invalid private, expected a boolean')
+    }
+
+    if (
+      hasProperty(directives, 'proxy-revalidate') &&
+      !isBoolean(directives['proxy-revalidate'])
+    ) {
+      throw new TypeError('Invalid proxy-revalidate, expected a boolean')
+    }
+
+    if (hasProperty(directives, 'public') && !isBoolean(directives.public)) {
+      throw new TypeError('Invalid public, expected a boolean')
+    }
+    if (
+      hasProperty(directives, 's-maxage') &&
+      (!isBoolean(directives['s-maxage']) || directives['s-maxage']) &&
+      !isDuration(directives['s-maxage'])
+    ) {
+      throw new TypeError('Invalid s-maxage, expected a duration or false')
+    }
+    if (
+      hasProperty(directives, 'stale-while-revalidate') &&
+      (!isBoolean(directives['stale-while-revalidate']) ||
+        directives['stale-while-revalidate']) &&
+      !isDuration(directives['stale-while-revalidate'])
+    ) {
+      throw new TypeError('Invalid stale-while-revalidate, expected a duration')
+    }
+    if (
+      hasProperty(directives, 'stale-if-error') &&
+      (!isBoolean(directives['stale-if-error']) ||
+        directives['stale-if-error']) &&
+      !isDuration(directives['stale-if-error'])
+    ) {
+      throw new TypeError('Invalid stale-if-error, expected a duration')
+    }
+    if (
+      hasProperty(directives, 'immutable') &&
+      !isBoolean(directives.immutable)
+    ) {
+      throw new TypeError('Invalid immutable, expected a boolean')
+    }
+
+    super(directives)
+  }
 
   get 's-maxage'(): number | false {
     return this.directives['s-maxage'] !== undefined &&

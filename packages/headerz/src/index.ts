@@ -1,0 +1,1 @@
+export { cacheControl } from './cacheControl'

@@ -10,7 +10,7 @@ export function hasProperty<T extends object, K extends PropertyKey>(
   value: T,
   key: K,
 ): value is T & Record<K, unknown> {
-  return key in value
+  return key in value && value[key as unknown as keyof T] !== undefined
 }
 
 export function isNumber(value: unknown): value is number {
