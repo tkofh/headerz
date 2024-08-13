@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'vitest'
-import type { DirectiveBag } from '../../src/directives/bag'
 import type { DurationDirective } from '../../src/directives/duration'
 import type { Duration } from '../../src/duration'
+import type { Header } from '../../src/header'
 import type { KeysOfType } from '../../src/utils/types'
 
 export function describeDurationDirective<
-  Bag extends DirectiveBag<Record<string, boolean | Duration>>,
+  Bag extends Header<Record<string, boolean | Duration>>,
   Key extends KeysOfType<Bag, number | false>,
-  Directives extends Record<string, unknown> = Bag extends DirectiveBag<infer T>
+  Directives extends Record<string, unknown> = Bag extends Header<infer T>
     ? T
     : never,
 >(

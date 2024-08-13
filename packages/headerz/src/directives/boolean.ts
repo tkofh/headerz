@@ -1,70 +1,73 @@
-import type { Duration } from '../duration'
+import { type Directive, createDirective } from '../directive'
+import type { Header } from '../header'
 import { dual } from '../utils/function'
-import type { KeysOfType } from '../utils/types'
-import type { DirectiveBag } from './bag'
+import { isBoolean } from '../utils/predicates'
 
-export class BooleanDirective<
-  Bag extends DirectiveBag<Record<string, boolean | Duration>>,
-> {
-  readonly set: {
-    <Self extends Bag>(self: Self, value: boolean): Self
-    <Self extends Bag>(value: boolean): (self: Self) => Self
-  } = dual(
-    2,
-    function <Self extends Bag>(
-      this: BooleanDirective<Self>,
-      self: Self,
-      value: boolean,
-    ) {
-      return self.with(this.name, value)
-    }.bind(this),
-  )
-  readonly or: {
-    <Self extends Bag>(self: Self, value: boolean): Self
-    <Self extends Bag>(value: boolean): (self: Self) => Self
-  } = dual(
-    2,
-    function <Self extends Bag>(
-      this: BooleanDirective<Self>,
-      self: Self,
-      value: boolean,
-    ) {
-      return self.with(this.name, !!self[this.name] || value)
-    }.bind(this),
-  )
-  readonly and: {
-    <Self extends Bag>(self: Self, value: boolean): Self
-    <Self extends Bag>(value: boolean): (self: Self) => Self
-  } = dual(
-    2,
-    function <Self extends Bag>(
-      this: BooleanDirective<Self>,
-      self: Self,
-      value: boolean,
-    ) {
-      return self.with(this.name, !!self[this.name] && value)
-    }.bind(this),
-  )
-  readonly xor: {
-    <Self extends Bag>(self: Self, value: boolean): Self
-    <Self extends Bag>(value: boolean): (self: Self) => Self
-  } = dual(
-    2,
-    function <Self extends Bag>(
-      this: BooleanDirective<Self>,
-      self: Self,
-      value: boolean,
-    ) {
-      return self.with(this.name, !!self[this.name] !== value)
-    }.bind(this),
-  )
+function createBooleanOperations<const K extends string>(key: K) {
+  const set: {
+    <H extends Header<Record<K, boolean>>>(header: H, value: boolean): H
+    <H extends Header<Record<K, boolean>>>(value: boolean): (header: H) => H
+  } = dual(2, (header: Header<Record<K, boolean>>, value: boolean) => {
+    return header.with(key, value)
+  })
 
-  constructor(private readonly name: KeysOfType<Bag, boolean>) {}
+  const or: {
+    <H extends Header<Record<K, boolean>>>(header: H, value: boolean): H
+    <H extends Header<Record<K, boolean>>>(value: boolean): (header: H) => H
+  } = dual(2, (header: Header<Record<K, boolean>>, value: boolean) => {
+    return header.with(key, !!header.directives[key] || value)
+  })
 
-  negate<Self extends Bag>(self: Self): Self {
-    if (self[this.name] === undefined) {
-      return self
-    }
-    return self.with(this.name, !self[this.name])
+  const and: {
+    <H extends Header<Record<K, boolean>>>(header: H, value: boolean): H
+    <H extends Header<Record<K, boolean>>>(value: boolean): (header: H) => H
+  } = dual(2, (header: Header<Record<K, boolean>>, value: boolean) => {
+    return header.with(key, !!header.directives[key] && value)
+  })
+
+  const xor: {
+    <H extends Header<Record<K, boolean>>>(header: H, value: boolean): H
+    <H extends Header<Record<K, boolean>>>(value: boolean): (header: H) => H
+  } = dual(2, (header: Header<Record<K, boolean>>, value: boolean) => {
+    return header.with(key, !!header.directives[key] !== value)
+  })
+
+  const negate = <H extends Header<Record<K, boolean>>>(header: H): H => {
+    return header.with(key, !header.directives[key])
   }
+
+  return {
+    set,
+    or,
+    and,
+    xor,
+    negate,
+  }
+}
+
+type BooleanOperations<K extends string> = ReturnType<
+  typeof createBooleanOperations<K>
+>
+
+function stringifyBoolean(
+  value: boolean,
+  self: Directive<string, string, boolean>,
+): string | null {
+  if (value) {
+    return self.key
+  }
+  return null
+}
+
+export function createBooleanDirective<
+  const N extends string,
+  const K extends string,
+>(name: N, key: K): Directive<N, K, boolean, BooleanOperations<K>> {
+  return createDirective(
+    name,
+    key,
+    isBoolean,
+    stringifyBoolean,
+    createBooleanOperations(key),
+  )
 }

@@ -1,7 +1,7 @@
-import { DirectiveBag } from '../directives/bag'
 import { BooleanDirective } from '../directives/boolean'
 import { DurationDirective } from '../directives/duration'
 import { type Duration, duration } from '../duration'
+import { Header } from '../header'
 import { hasProperty, isRecord } from '../utils/predicates'
 import type { RequestCacheControl } from './request'
 import type { ResponseCacheControl } from './response'
@@ -10,50 +10,50 @@ const TypeBrand: unique symbol = Symbol.for('headerz.cacheControl')
 
 type TypeBrand = typeof TypeBrand
 
-export type CommonDirectives = {
-  'max-age': Duration | false
-  'no-cache': boolean
-  'no-store': boolean
-  'no-transform': boolean
-  'stale-if-error': Duration | false
+export interface CommonDirectives {
+  maxAge: Duration | false
+  noCache: boolean
+  noStore: boolean
+  noTransform: boolean
+  staleIfError: Duration | false
 }
 
 export class CacheControl<
   Directives extends CommonDirectives,
-> extends DirectiveBag<Directives> {
+> extends Header<Directives> {
   readonly [TypeBrand]: TypeBrand = TypeBrand
 
   constructor(directives: Partial<Directives> = {}) {
-    if (directives['no-store'] === true) {
-      super({ 'no-store': true } as Partial<Directives>)
+    if (directives.noStore === true) {
+      super({ noStore: true } as Partial<Directives>)
     } else {
       super(directives)
     }
   }
 
-  get 'max-age'(): number | false {
-    return this.directives['max-age'] !== undefined &&
-      this.directives['max-age'] !== false
-      ? duration(this.directives['max-age'])
+  get maxAge(): number | false {
+    return this.directives.maxAge !== undefined &&
+      this.directives.maxAge !== false
+      ? duration(this.directives.maxAge)
       : false
   }
 
-  get 'no-cache'(): boolean {
-    return this.directives['no-cache'] ?? false
+  get noCache(): boolean {
+    return this.directives.noCache ?? false
   }
 
-  get 'no-store'(): boolean {
-    return this.directives['no-store'] ?? false
+  get noStore(): boolean {
+    return this.directives.noStore ?? false
   }
 
-  get 'no-transform'(): boolean {
-    return this.directives['no-transform'] ?? false
+  get noTransform(): boolean {
+    return this.directives.noTransform ?? false
   }
 
-  get 'stale-if-error'(): number | false {
-    return this.directives['stale-if-error'] !== undefined &&
-      this.directives['stale-if-error'] !== false
-      ? duration(this.directives['stale-if-error'])
+  get staleIfError(): number | false {
+    return this.directives.staleIfError !== undefined &&
+      this.directives.staleIfError !== false
+      ? duration(this.directives.staleIfError)
       : false
   }
 
@@ -75,20 +75,20 @@ export function isCacheControl<Directives extends CommonDirectives>(
 
 export const noCache = new BooleanDirective<
   RequestCacheControl | ResponseCacheControl
->('no-cache')
+>('noCache')
 
 export const noStore = new BooleanDirective<
   RequestCacheControl | ResponseCacheControl
->('no-store')
+>('noStore')
 
 export const noTransform = new BooleanDirective<
   RequestCacheControl | ResponseCacheControl
->('no-transform')
+>('noTransform')
 
 export const maxAge = new DurationDirective<
   RequestCacheControl | ResponseCacheControl
->('max-age')
+>('maxAge')
 
 export const staleIfError = new DurationDirective<
   RequestCacheControl | ResponseCacheControl
->('stale-if-error')
+>('staleIfError')

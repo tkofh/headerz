@@ -1,15 +1,23 @@
+import type { AssertProperty } from './types'
+
 export function isRecordOrArray(value: unknown): value is object {
   return typeof value === 'object' && value !== null
 }
 
-export function isRecord(value: unknown): value is Record<string, unknown> {
+export function isArray<T>(value: unknown): value is Array<T> {
+  return Array.isArray(value)
+}
+
+export function isRecord(
+  value: unknown,
+): value is Record<PropertyKey, unknown> {
   return typeof value === 'object' && value !== null
 }
 
-export function hasProperty<T extends object, K extends PropertyKey>(
-  value: T,
-  key: K,
-): value is T & Record<K, unknown> {
+export function hasProperty<
+  const T extends object,
+  const K extends PropertyKey,
+>(value: T, key: K): value is AssertProperty<T, K> & T {
   return key in value && value[key as unknown as keyof T] !== undefined
 }
 

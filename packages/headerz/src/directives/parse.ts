@@ -1,25 +1,23 @@
 import type { Duration } from '../duration'
-import type { DirectiveBag } from './bag'
+import type { Header } from '../header'
 
 export class DirectiveParser<
-  Bag extends DirectiveBag<Record<string, boolean | Duration>>,
-  Directives = Bag extends DirectiveBag<infer T> ? T : never,
+  Bag extends Header<Record<string, boolean | Duration>>,
+  Directives = Bag extends Header<infer T> ? T : never,
 > {
-  private readonly directives: Set<keyof Directives & string>
   constructor(
     private readonly ctor: (directives: Partial<Directives>) => Bag,
-    orderedDirectives: ReadonlyArray<keyof Directives & string>,
-  ) {
-    this.directives = new Set(orderedDirectives)
-  }
+    private readonly lookup: ReadonlyMap<string, keyof Directives & string>,
+    private readonly separator: string = ',',
+  ) {}
 
   parse(value: string): Bag {
     const map = this.toMap(value, false)
 
     const result: Partial<Directives> = {}
-    for (const directive of this.directives) {
-      if (map.has(directive)) {
-        result[directive] = map.get(directive) as never
+    for (const [key, directive] of this.lookup) {
+      if (map.has(key)) {
+        result[directive] = map.get(key) as never
       }
     }
 
@@ -50,7 +48,7 @@ export class DirectiveParser<
       throw new Error(`Invalid directive: ${key}`)
     }
 
-    if (!(this.directives as Set<string>).has(key)) {
+    if (!this.lookup.has(key)) {
       throw new Error(`Unknown directive: ${key}`)
     }
   }
@@ -58,7 +56,7 @@ export class DirectiveParser<
   private toMap(input: string, strict: boolean): Map<string, number | boolean> {
     const result = new Map<string, number | boolean>()
 
-    for (const directive of input.split(',')) {
+    for (const directive of input.split(this.separator)) {
       const [name, value] = directive.split('=') as [string, string | undefined]
       const key = name.trim().toLowerCase()
 

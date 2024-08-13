@@ -18,79 +18,91 @@ const TypeBrand: unique symbol = Symbol.for('headerz.cacheControl.request')
 type TypeBrand = typeof TypeBrand
 
 export interface RequestCacheControlDirectives extends CommonDirectives {
-  'max-stale': Duration | false
-  'min-fresh': Duration | false
-  'only-if-cached': boolean
+  maxStale: Duration | false
+  minFresh: Duration | false
+  onlyIfCached: boolean
 }
+
+const thing = {} as Partial<RequestCacheControlDirectives>
+if (hasProperty(thing, 'maxAge')) {
+  console.log(thing.maxAge)
+}
+
+const SERIALIZATION_LOOKUP = new Map([
+  ['maxAge', 'max-age'],
+  ['maxStale', 'max-stale'],
+  ['minFresh', 'min-fresh'],
+  ['noCache', 'no-cache'],
+  ['noStore', 'no-store'],
+  ['noTransform', 'no-transform'],
+  ['onlyIfCached', 'only-if-cached'],
+  ['staleIfError', 'stale-if-error'],
+] as const)
+
+const PARSING_LOOKUP = new Map([
+  ['max-age', 'maxAge'],
+  ['max-stale', 'maxStale'],
+  ['min-fresh', 'minFresh'],
+  ['no-cache', 'noCache'],
+  ['no-store', 'noStore'],
+  ['no-transform', 'noTransform'],
+  ['only-if-cached', 'onlyIfCached'],
+  ['stale-if-error', 'staleIfError'],
+] as const)
+
+// validate in constructor function (not class constructor) and inside `with()`
 
 export class RequestCacheControl
   extends CacheControl<RequestCacheControlDirectives>
   implements Falsifiable<RequestCacheControlDirectives>
 {
-  static order = [
-    'max-age',
-    'max-stale',
-    'min-fresh',
-    'no-cache',
-    'no-store',
-    'no-transform',
-    'only-if-cached',
-    'stale-if-error',
-  ] as const
-
   readonly [TypeBrand]: TypeBrand = TypeBrand
+  protected override lookup = SERIALIZATION_LOOKUP
 
   constructor(directives: Partial<RequestCacheControlDirectives> = {}) {
     if (
-      hasProperty(directives, 'max-age') &&
-      (!isBoolean(directives['max-age']) || directives['max-age']) &&
-      !isDuration(directives['max-age'])
+      hasProperty(directives, 'maxAge') &&
+      (!isBoolean(directives.maxAge) || directives.maxAge) &&
+      !isDuration(directives.maxAge)
     ) {
       throw new TypeError('Invalid max-age, expected a duration or false')
     }
     if (
-      hasProperty(directives, 'max-stale') &&
-      (!isBoolean(directives['max-stale']) || directives['max-stale']) &&
-      !isDuration(directives['max-stale'])
+      hasProperty(directives, 'maxStale') &&
+      (!isBoolean(directives.maxStale) || directives.maxStale) &&
+      !isDuration(directives.maxStale)
     ) {
       throw new TypeError('Invalid max-stale, expected a duration or false')
     }
     if (
-      hasProperty(directives, 'min-fresh') &&
-      (!isBoolean(directives['min-fresh']) || directives['min-fresh']) &&
-      !isDuration(directives['min-fresh'])
+      hasProperty(directives, 'minFresh') &&
+      (!isBoolean(directives.minFresh) || directives.minFresh) &&
+      !isDuration(directives.minFresh)
     ) {
       throw new TypeError('Invalid min-fresh, expected a duration or false')
     }
-    if (
-      hasProperty(directives, 'no-cache') &&
-      !isBoolean(directives['no-cache'])
-    ) {
+    if (hasProperty(directives, 'noCache') && !isBoolean(directives.noCache)) {
       throw new TypeError('Invalid no-cache, expected a boolean')
     }
-    if (
-      hasProperty(directives, 'no-store') &&
-      !isBoolean(directives['no-store'])
-    ) {
+    if (hasProperty(directives, 'noStore') && !isBoolean(directives.noStore)) {
       throw new TypeError('Invalid no-store, expected a boolean')
     }
     if (
-      hasProperty(directives, 'no-transform') &&
-      !isBoolean(directives['no-transform'])
+      hasProperty(directives, 'noTransform') &&
+      !isBoolean(directives.noTransform)
     ) {
       throw new TypeError('Invalid no-transform, expected a boolean')
     }
     if (
-      hasProperty(directives, 'only-if-cached') &&
-      !isBoolean(directives['only-if-cached'])
+      hasProperty(directives, 'onlyIfCached') &&
+      !isBoolean(directives.onlyIfCached)
     ) {
       throw new TypeError('Invalid only-if-cached, expected a boolean')
     }
     if (
-      hasProperty(directives, 'stale-if-error') &&
-      (!isBoolean(directives['stale-if-error']) ||
-        directives['stale-if-error']) &&
-      !isDuration(directives['stale-if-error'])
+      hasProperty(directives, 'staleIfError') &&
+      (!isBoolean(directives.staleIfError) || directives.staleIfError) &&
+      !isDuration(directives.staleIfError)
     ) {
       throw new TypeError('Invalid stale-if-error, expected a duration')
     }
@@ -98,28 +110,22 @@ export class RequestCacheControl
     super(directives)
   }
 
-  get 'max-stale'(): number | false {
-    return this.directives['max-stale'] !== undefined &&
-      this.directives['max-stale'] !== false
-      ? duration(this.directives['max-stale'])
+  get maxStale(): number | false {
+    return this.directives.maxStale !== undefined &&
+      this.directives.maxStale !== false
+      ? duration(this.directives.maxStale)
       : false
   }
 
-  get 'min-fresh'(): number | false {
-    return this.directives['min-fresh'] !== undefined &&
-      this.directives['min-fresh'] !== false
-      ? duration(this.directives['min-fresh'])
+  get minFresh(): number | false {
+    return this.directives.minFresh !== undefined &&
+      this.directives.minFresh !== false
+      ? duration(this.directives.minFresh)
       : false
   }
 
-  get 'only-if-cached'(): boolean {
-    return this.directives['only-if-cached'] ?? false
-  }
-
-  protected override get order(): ReadonlyArray<
-    keyof RequestCacheControlDirectives & string
-  > {
-    return RequestCacheControl.order
+  get onlyIfCached(): boolean {
+    return this.directives.onlyIfCached ?? false
   }
 
   static override [Symbol.hasInstance](value: unknown) {
@@ -150,10 +156,10 @@ export function requestCacheControl(
   return new RequestCacheControl(directives)
 }
 
-export const maxStale = new DurationDirective<RequestCacheControl>('max-stale')
-export const minFresh = new DurationDirective<RequestCacheControl>('min-fresh')
+export const maxStale = new DurationDirective<RequestCacheControl>('maxStale')
+export const minFresh = new DurationDirective<RequestCacheControl>('minFresh')
 export const onlyIfCached = new BooleanDirective<RequestCacheControl>(
-  'only-if-cached',
+  'onlyIfCached',
 )
 
 export const maxAge = sharedMaxAge as DurationDirective<RequestCacheControl>
@@ -165,20 +171,17 @@ export const staleIfError =
   sharedStaleIfError as DurationDirective<RequestCacheControl>
 
 export const requestDirectives = {
-  'max-age': maxAge,
-  'max-stale': maxStale,
-  'min-fresh': minFresh,
-  'no-cache': noCache,
-  'no-store': noStore,
-  'no-transform': noTransform,
-  'only-if-cached': onlyIfCached,
-  'stale-if-error': staleIfError,
+  maxAge,
+  maxStale,
+  minFresh,
+  noCache,
+  noStore,
+  noTransform,
+  onlyIfCached,
+  staleIfError,
 } as const
 
-const parser = new DirectiveParser(
-  requestCacheControl,
-  RequestCacheControl.order,
-)
+const parser = new DirectiveParser(requestCacheControl, PARSING_LOOKUP, ',')
 
 export function parseRequestCacheControl(value: string): RequestCacheControl {
   return parser.parse(value)
