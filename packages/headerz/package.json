@@ -1,6 +1,6 @@
 {
   "name": "headerz",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Type helpers for headers",
   "author": "Tim Morris <timthewebguy@gmail.com>",
   "homepage": "https://github.com/tkofh/headerz#readme",
@@ -17,9 +17,9 @@
       "types": "./dist/index.d.ts"
     },
     "./cache-control": {
-      "require": "./dist/cacheControl/index.cjs",
-      "import": "./dist/cacheControl/index.mjs",
-      "types": "./dist/cacheControl/index.d.ts"
+      "require": "./dist/cache-control.cjs",
+      "import": "./dist/cache-control.mjs",
+      "types": "./dist/cache-control.d.ts"
     }
   },
   "files": ["dist"],
