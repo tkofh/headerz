@@ -12,36 +12,24 @@ export type RequireKey<T, K> = K extends keyof T
   ? Identity<{ [P in K]: Exclude<T[P], undefined> } & T>
   : never
 
-export type IntersectionOf<T> = (
-  T extends unknown
-    ? (k: T) => void
-    : never
-) extends (k: infer I) => void
-  ? I extends Record<PropertyKey, unknown>
-    ? I
+type StrictRequireKey<T extends object, K extends keyof T> = {
+  [P in keyof T & K]-?: Exclude<T[P], undefined>
+} & Omit<T, K>
+
+type StrictPick<T extends object, K extends PropertyKey> = T extends unknown
+  ? K extends keyof T
+    ? keyof T extends never
+      ? never
+      : StrictRequireKey<T, K>
     : never
   : never
 
-export type KeysOf<T> = T extends unknown ? keyof T : never
-
-type DefineKey<O extends object, K extends keyof O> = Identity<
-  Required<Pick<O, K>> & Omit<O, K>
+export type AssertProperty<T extends object, K extends PropertyKey> = Identity<
+  [unknown] extends [T]
+    ? T & Record<K, unknown>
+    : [PropertyKey] extends [keyof T]
+      ? T & Record<K, unknown>
+      : PropertyKey extends keyof T
+        ? never
+        : StrictPick<T, K>
 >
-
-type ExtractAndDefine<O extends object, K extends keyof O> = DefineKey<
-  Extract<O, { [P in K]: unknown }>,
-  K
->
-type HandlePropertyAssertion<
-  O extends object,
-  K extends PropertyKey,
-> = PropertyKey extends keyof O
-  ? Record<K, unknown>
-  : K extends keyof O
-    ? ExtractAndDefine<O, keyof O & K>
-    : never
-
-export type AssertProperty<
-  O extends object,
-  K extends PropertyKey,
-> = O extends unknown ? HandlePropertyAssertion<O, K> : never

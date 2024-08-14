@@ -1,80 +1,99 @@
-import type { Directive, DirectivesFrom, OperationsFrom } from './directive'
+import type {
+  AnyDirective,
+  DirectivesList,
+  InputsOf,
+  OperationsOf,
+  ValuesOf,
+} from './directive'
 import { type FinalMapFn, type MapFn, pipe } from './utils/function'
-import { hasProperty } from './utils/predicates'
-import type { Identity } from './utils/types'
+import { hasProperty, isRecord } from './utils/predicates'
 
-export interface HeaderConstructor<Directives> {
-  new (directives: Partial<Directives>): Header<Directives>
-}
+const HeaderTypeBrand: unique symbol = Symbol.for('headerz')
+type HeaderTypeBrand = typeof HeaderTypeBrand
 
-export type HeaderFactory<
-  Directives extends ReadonlyArray<Directive<string, string, unknown>>,
-> = ((directives: Partial<DirectivesFrom<Directives>>) => Header<Directives>) &
-  OperationsFrom<Directives>
+export type HeaderFactory<Directives extends AnyDirective = AnyDirective> = (<
+  D extends Partial<InputsOf<Directives>>,
+>(
+  directives: D,
+) => Header<ValuesOf<Directives>>) &
+  OperationsOf<Directives> & {
+    hasInstance(value: unknown): value is Header<ValuesOf<Directives>>
+    parse(value: string): Header<ValuesOf<Directives>>
+    normalize(value: string): string
+    validate(value: string): boolean
+  }
 
-export interface Header<Directives> {
+export interface Header<Directives extends Record<string, unknown>> {
   readonly directives: Partial<Directives>
 
-  with<Directive extends keyof Directives>(
-    directive: Directive,
-    value: Directives[Directive] | undefined,
-  ): this
-  pipe<R = this>(...fns: [...Array<MapFn<this>>, FinalMapFn<this, R>]): R
+  with<
+    const Directive extends keyof Directives,
+    const Value extends Directives[Directive] | undefined,
+  >(directive: Directive, value: Value): this
+  pipe<A extends Header<Directives>, R>(
+    ...fns: [...Array<MapFn<A>>, FinalMapFn<A, R>]
+  ): R
 
   toHeaderString(): string
 
   toValueString(): string
 }
 
-interface HeaderOptions<Directives> {
+interface HeaderOptions<Directives extends AnyDirective> {
   separator: string
-  transform: (directives: Identity<Directives>) => Identity<Directives>
+  transform: (
+    directives: Partial<ValuesOf<Directives>>,
+  ) => Partial<ValuesOf<Directives>>
 }
 
-export function createHeader<
-  const Definitions extends ReadonlyArray<Directive<string, string, unknown>>,
->(
+export function createHeader<const Definitions extends DirectivesList>(
   name: string,
   definitions: Definitions,
-  options: HeaderOptions<DirectivesFrom<Definitions>>,
-): HeaderFactory<Definitions> {
-  const TypeBrand: unique symbol = Symbol.for(`headerz.${name}}`)
+  options: HeaderOptions<Definitions[number]>,
+): HeaderFactory<Definitions[number]> {
+  const TypeBrand: unique symbol = Symbol.for(`headerz.${name}`)
   type TypeBrand = typeof TypeBrand
 
-  const header = class implements Header<DirectivesFrom<Definitions>> {
+  const header = class implements Header<Record<string, unknown>> {
+    static readonly name = name
+    readonly [HeaderTypeBrand]: HeaderTypeBrand = HeaderTypeBrand
     readonly [TypeBrand]: TypeBrand = TypeBrand
-
     readonly name = name
-    readonly directives: Partial<DirectivesFrom<Definitions>>
+    readonly directives: Partial<Record<string, unknown>>
 
-    constructor(input: Partial<DirectivesFrom<Definitions>> = {}) {
+    constructor(input: Partial<Record<string, unknown>> = {}) {
       for (const directive of definitions) {
         const directiveName = directive.name
         if (hasProperty(input, directiveName)) {
           const directiveValue = input[directiveName]
-          if (!directive.validate(directiveValue, directive)) {
+          if (!directive.validate(directiveValue)) {
             throw new TypeError(
               `Invalid value for ${directive.name}: ${directiveValue}`,
             )
           }
         }
       }
-      this.directives = options.transform(input)
+      this.directives = options.transform(
+        input as ValuesOf<Definitions[number]>,
+      )
     }
 
-    with<Directive extends keyof DirectivesFrom<Definitions>>(
-      directive: Directive,
-      value: DirectivesFrom<Definitions>[Directive] | undefined,
-    ): this {
+    static [Symbol.hasInstance](value: unknown) {
+      return (
+        isRecord(value) &&
+        hasProperty(value, TypeBrand) &&
+        value[TypeBrand] === TypeBrand
+      )
+    }
+
+    with(directive: string, value: unknown): this {
       if (value === undefined) {
         if (!hasProperty(this.directives, directive)) {
           return this
         }
 
         const { [directive]: _, ...rest } = this.directives
-        return new header(
-          rest as Partial<DirectivesFrom<Definitions>>,
-        ) as unknown as this
+        return new header(rest as Record<string, unknown>) as unknown as this
       }
 
       return new header({
@@ -83,8 +102,10 @@ export function createHeader<
       }) as unknown as this
     }
 
-    pipe<R = this>(...fns: [...Array<MapFn<this>>, FinalMapFn<this, R>]): R {
-      return pipe(this, ...fns)
+    pipe<A extends Header<Record<string, unknown>>, R>(
+      ...fns: [...Array<MapFn<A>>, FinalMapFn<A, R>]
+    ): R {
+      return pipe(this as unknown as A, ...fns)
     }
 
     toHeaderString(): string {
@@ -94,14 +115,13 @@ export function createHeader<
     toValueString(): string {
       const results: Array<string> = []
       for (const directive of definitions) {
-        const directiveName = directive.name
         if (
-          hasProperty(this.directives, directiveName) &&
-          this.directives[directiveName] !== undefined &&
-          this.directives[directiveName] !== false
+          hasProperty(this.directives, directive.key) &&
+          this.directives[directive.key] !== undefined &&
+          this.directives[directive.key] !== false
         ) {
           const result = directive.stringify(
-            this.directives[directiveName],
+            this.directives[directive.key],
             directive,
           )
           if (result !== null) {
@@ -111,91 +131,85 @@ export function createHeader<
       }
       return results.join(options.separator)
     }
-  }
 
-  Object.defineProperty(header, 'name', { value: name })
+    [Symbol.for('nodejs.util.inspect.custom')]() {
+      return this.toHeaderString()
+    }
+  }
 
   const operations = {} as Record<string, unknown>
   for (const directive of definitions) {
     operations[directive.key] = directive.operations
   }
 
-  return Object.assign(
-    (directives: Partial<DirectivesFrom<Definitions>>) =>
-      new header(directives) as unknown as Header<DirectivesFrom<Definitions>>,
-    operations,
-  ) as never
+  const toMap = (input: string, strict: boolean): Record<string, unknown> => {
+    const result = {} as Record<string, unknown>
+
+    const seen = new Set<string>()
+
+    for (const raw of input
+      .replace(new RegExp(`^${name}:`), '')
+      .trim()
+      .split(options.separator)) {
+      const segment = raw.trim()
+      for (const directive of definitions) {
+        if (segment.startsWith(directive.name)) {
+          if (strict && seen.has(directive.key)) {
+            throw new Error(`Duplicate directive: ${directive.key}`)
+          }
+          seen.add(directive.key)
+          result[directive.key] = directive.parse(segment)
+        }
+      }
+    }
+
+    return result
+  }
+
+  const hasInstance = (value: unknown) => value instanceof header
+  const parse = (input: string) => {
+    return new header(toMap(input.toLowerCase().trim(), false))
+  }
+  const normalize = (input: string) => {
+    const result = parse(input.toLowerCase().trim())
+
+    return input.startsWith(name)
+      ? result.toHeaderString()
+      : result.toValueString()
+  }
+  const validate = (input: string) => {
+    try {
+      toMap(input.toLowerCase().trim(), true)
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  Object.assign(operations, {
+    hasInstance,
+    parse,
+    normalize,
+    validate,
+  })
+
+  return Object.assign((inputs: Record<string, unknown>) => {
+    const directives = {} as Record<string, unknown>
+    for (const directive of definitions) {
+      if (hasProperty(inputs, directive.key)) {
+        directives[directive.key] = directive.translate(inputs[directive.key])
+      }
+    }
+    return new header(directives)
+  }, operations) as never
 }
 
-//
-// export class Header<Directives> {
-//   readonly [TypeBrand]: TypeBrand = TypeBrand
-//   protected lookup: ReadonlyMap<keyof Directives & string, string> =
-//     defaultLookup
-//   private stringified: string | undefined
-//
-//   constructor(protected readonly directives: Partial<Directives> = {}) {}
-//
-//   protected get separator(): string {
-//     return ','
-//   }
-//
-//   static [Symbol.hasInstance](value: unknown) {
-//     return isHeader(value)
-//   }
-//
-//   pipe<A extends this = this, R = this>(
-//     ...fns: [...Array<MapFn<A>>, FinalMapFn<A, R>]
-//   ): R {
-//     return pipe(this as A, ...fns)
-//   }
-//
-//   with<Directive extends keyof Directives>(
-//     directive: Directive,
-//     value: Directives[Directive],
-//   ): this {
-//     return this.instance({
-//       ...this.directives,
-//       [directive]: value,
-//     })
-//   }
-//
-//   toString(): string {
-//     if (this.stringified === undefined) {
-//       const directives: Array<string> = []
-//       for (const [key, directive] of this.lookup) {
-//         if (
-//           this.directives[key] !== undefined &&
-//           this.directives[key] !== false
-//         ) {
-//           if (this.directives[key] === true) {
-//             directives.push(directive)
-//           } else {
-//             directives.push(`${directive}=${this.directives[key]}`)
-//           }
-//         }
-//       }
-//       this.stringified = directives.join(this.separator)
-//     }
-//
-//     return this.stringified
-//   }
-//
-//   [Symbol.for('nodejs.util.inspect.custom')]() {
-//     return this.toString()
-//   }
-//
-//   protected instance(directives: Partial<Directives>): this {
-//     return new Header(directives) as this
-//   }
-// }
-//
-// export function isHeader<Directives extends Record<string, boolean | Duration>>(
-//   value: unknown,
-// ): value is Header<Directives> {
-//   return (
-//     isRecord(value) &&
-//     hasProperty(value, TypeBrand) &&
-//     value[TypeBrand] === TypeBrand
-//   )
-// }
+export function isHeader<Directives extends Record<string, unknown>>(
+  value: unknown,
+): value is Header<Directives> {
+  return (
+    isRecord(value) &&
+    hasProperty(value, HeaderTypeBrand) &&
+    value[HeaderTypeBrand] === HeaderTypeBrand
+  )
+}

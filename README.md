@@ -6,26 +6,26 @@ todo: docs
 import { cacheControl } from 'headerz'
 
 const request = cacheControl.request({
-  'max-age': 100,
-  'no-cache': true,
-  'no-store': true,
+  maxAge: 100,
+  noCache: true,
+  noStore: true,
 })
 
 const response = cacheControl.response({
-  'max-age': 100,
-  'no-cache': true,
-  'no-store': true,
+  maxAge: 100,
+  noCache: true,
+  noStore: true,
 })
 
-console.log(request.toString())
+console.log(request.toValueString())
 // max-age=100,no-cache,no-store
 
-console.log(response.toString())
-// max-age=100,no-cache,no-store
+console.log(response.toHeaderString())
+// cache-control: max-age=100,no-cache,no-store
 
 console.log(
   request
-    .pipe(cacheControl.request.directives['no-store'].set(true))
+    .pipe(cacheControl.request.noStore.set(true))
     .toString(),
 )
 // no-store

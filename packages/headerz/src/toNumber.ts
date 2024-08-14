@@ -78,13 +78,13 @@ function normalizeFromRecord(
   }
 }
 
-export function duration(value: Duration, allowNegative?: boolean): number
-export function duration(
+export function toNumber(value: Duration, allowNegative?: boolean): number
+export function toNumber(
   unit: DurationUnit,
   value: number,
   allowNegative?: boolean,
 ): number
-export function duration(
+export function toNumber(
   unitOrValue: DurationUnit | Duration,
   value?: number | boolean,
   allowNegative?: boolean,

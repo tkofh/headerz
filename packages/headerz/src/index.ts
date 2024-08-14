@@ -1,2 +1,2 @@
-export { cacheControl } from './cacheControl'
-export { duration } from './duration'
+export { cacheControl } from './cache-control'
+export { toNumber } from './toNumber'

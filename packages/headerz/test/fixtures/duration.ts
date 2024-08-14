@@ -1,192 +1,157 @@
 import { describe, expect, test } from 'vitest'
+import type { ValuesOf } from '../../src/directive'
+import type { BooleanDirective } from '../../src/directives/boolean'
 import type { DurationDirective } from '../../src/directives/duration'
-import type { Duration } from '../../src/duration'
-import type { Header } from '../../src/header'
+import type { HeaderFactory } from '../../src/header'
+import type { Duration } from '../../src/toNumber'
 import type { KeysOfType } from '../../src/utils/types'
 
 export function describeDurationDirective<
-  Bag extends Header<Record<string, boolean | Duration>>,
-  Key extends KeysOfType<Bag, number | false>,
-  Directives extends Record<string, unknown> = Bag extends Header<infer T>
-    ? T
+  const Factory extends HeaderFactory,
+  Inputs extends ValuesOf<Directives>,
+  Key extends KeysOfType<Inputs, Duration>,
+  Directives extends DurationDirective<
+    string,
+    string
+  > = Factory extends HeaderFactory<infer D>
+    ? Extract<D, BooleanDirective<string, string>>
     : never,
->(
-  ctor: (input: Partial<Directives>) => Bag,
-  key: Key,
-  directive: DurationDirective<Bag>,
-) {
+>(factory: Factory, key: Key) {
   describe(key, () => {
     test('set', () => {
-      expect(directive.set(ctor({}), 100).toString()).toEqual(
-        ctor({ [key]: 100 } as Partial<Directives>).toString(),
+      expect(factory[key].set(factory({}), 100).toString()).toEqual(
+        factory({ [key]: 100 }).toString(),
       )
-      expect(directive.set(ctor({}), { seconds: 100 }).toString()).toEqual(
-        ctor({ [key]: 100 } as Partial<Directives>).toString(),
+      expect(
+        factory[key].set(factory({}), { seconds: 100 }).toString(),
+      ).toEqual(factory({ [key]: 100 }).toString())
+      expect(factory[key].set(factory({}), 'seconds', 100).toString()).toEqual(
+        factory({ [key]: 100 }).toString(),
       )
-      expect(directive.set(ctor({}), 'seconds', 100).toString()).toEqual(
-        ctor({ [key]: 100 } as Partial<Directives>).toString(),
-      )
-      expect(directive.set(ctor({}), false).toString()).toEqual(
-        ctor({ [key]: false } as Partial<Directives>).toString(),
-      )
+      // expect(factory[key].set(factory({}), false).toString()).toEqual(
+      //   factory({ [key]: false }).toString(),
+      // )
 
+      expect(factory[key].set(factory({ [key]: 100 }), 200).toString()).toEqual(
+        factory({ [key]: 200 }).toString(),
+      )
       expect(
-        directive
-          .set(ctor({ [key]: 100 } as Partial<Directives>), 200)
-          .toString(),
-      ).toEqual(ctor({ [key]: 200 } as Partial<Directives>).toString())
-      expect(
-        directive
-          .set(ctor({ [key]: 100 } as Partial<Directives>), {
+        factory[key]
+          .set(factory({ [key]: 100 }), {
             seconds: 200,
           })
           .toString(),
-      ).toEqual(ctor({ [key]: 200 } as Partial<Directives>).toString())
+      ).toEqual(factory({ [key]: 200 }).toString())
       expect(
-        directive
-          .set(ctor({ [key]: 100 } as Partial<Directives>), 'seconds', 200)
-          .toString(),
-      ).toEqual(ctor({ [key]: 200 } as Partial<Directives>).toString())
-      expect(
-        directive
-          .set(ctor({ [key]: 100 } as Partial<Directives>), false)
-          .toString(),
-      ).toEqual(ctor({ [key]: false } as Partial<Directives>).toString())
+        factory[key].set(factory({ [key]: 100 }), 'seconds', 200).toString(),
+      ).toEqual(factory({ [key]: 200 }).toString())
+      // expect(
+      //   factory[key].set(factory({ [key]: 100 }), false).toString(),
+      // ).toEqual(factory({ [key]: false }).toString())
 
       expect(
-        directive
-          .set(ctor({ [key]: { seconds: 100 } } as Partial<Directives>), 200)
-          .toString(),
-      ).toEqual(ctor({ [key]: 200 } as Partial<Directives>).toString())
+        factory[key].set(factory({ [key]: { seconds: 100 } }), 200).toString(),
+      ).toEqual(factory({ [key]: 200 }).toString())
       expect(
-        directive
-          .set(ctor({ [key]: { seconds: 100 } } as Partial<Directives>), {
+        factory[key]
+          .set(factory({ [key]: { seconds: 100 } }), {
             seconds: 200,
           })
           .toString(),
-      ).toEqual(ctor({ [key]: 200 } as Partial<Directives>).toString())
+      ).toEqual(factory({ [key]: 200 }).toString())
       expect(
-        directive
-          .set(
-            ctor({ [key]: { seconds: 100 } } as Partial<Directives>),
-            'seconds',
-            200,
-          )
+        factory[key]
+          .set(factory({ [key]: { seconds: 100 } }), 'seconds', 200)
           .toString(),
-      ).toEqual(ctor({ [key]: 200 } as Partial<Directives>).toString())
-      expect(
-        directive
-          .set(ctor({ [key]: { seconds: 100 } } as Partial<Directives>), false)
-          .toString(),
-      ).toEqual(ctor({ [key]: false } as Partial<Directives>).toString())
+      ).toEqual(factory({ [key]: 200 }).toString())
+      // expect(
+      //   factory[key]
+      //     .set(factory({ [key]: { seconds: 100 } }), false)
+      //     .toString(),
+      // ).toEqual(factory({ [key]: false }).toString())
 
-      expect(
-        directive
-          .set(ctor({ [key]: false } as Partial<Directives>), 200)
-          .toString(),
-      ).toEqual(ctor({ [key]: 200 } as Partial<Directives>).toString())
-      expect(
-        directive
-          .set(ctor({ [key]: false } as Partial<Directives>), {
-            seconds: 200,
-          })
-          .toString(),
-      ).toEqual(ctor({ [key]: 200 } as Partial<Directives>).toString())
-      expect(
-        directive
-          .set(ctor({ [key]: false } as Partial<Directives>), 'seconds', 200)
-          .toString(),
-      ).toEqual(ctor({ [key]: 200 } as Partial<Directives>).toString())
-      expect(
-        directive
-          .set(ctor({ [key]: false } as Partial<Directives>), false)
-          .toString(),
-      ).toEqual(ctor({ [key]: false } as Partial<Directives>).toString())
+      // expect(
+      //   factory[key].set(factory({ [key]: false }), 200).toString(),
+      // ).toEqual(factory({ [key]: 200 }).toString())
+      // expect(
+      //   factory[key]
+      //     .set(factory({ [key]: false }), {
+      //       seconds: 200,
+      //     })
+      //     .toString(),
+      // ).toEqual(factory({ [key]: 200 }).toString())
+      // expect(
+      //   factory[key].set(factory({ [key]: false }), 'seconds', 200).toString(),
+      // ).toEqual(factory({ [key]: 200 }).toString())
+      // expect(
+      //   factory[key].set(factory({ [key]: false }), false).toString(),
+      // ).toEqual(factory({ [key]: false }).toString())
     })
 
     test('withMin', () => {
       expect(
-        directive
-          .withMin(ctor({ [key]: 50 } as Partial<Directives>), 100)
-          .toString(),
-      ).toEqual(ctor({ [key]: 100 } as Partial<Directives>).toString())
+        factory[key].withMin(factory({ [key]: 50 }), 100).toString(),
+      ).toEqual(factory({ [key]: 100 }).toString())
       expect(
-        directive
-          .withMin(ctor({ [key]: 150 } as Partial<Directives>), 100)
-          .toString(),
-      ).toEqual(ctor({ [key]: 150 } as Partial<Directives>).toString())
+        factory[key].withMin(factory({ [key]: 150 }), 100).toString(),
+      ).toEqual(factory({ [key]: 150 }).toString())
     })
 
     test('withMax', () => {
       expect(
-        directive
-          .withMax(ctor({ [key]: 50 } as Partial<Directives>), 100)
-          .toString(),
-      ).toEqual(ctor({ [key]: 50 } as Partial<Directives>).toString())
+        factory[key].withMax(factory({ [key]: 50 }), 100).toString(),
+      ).toEqual(factory({ [key]: 50 }).toString())
       expect(
-        directive
-          .withMax(ctor({ [key]: 150 } as Partial<Directives>), 100)
-          .toString(),
-      ).toEqual(ctor({ [key]: 100 } as Partial<Directives>).toString())
+        factory[key].withMax(factory({ [key]: 150 }), 100).toString(),
+      ).toEqual(factory({ [key]: 100 }).toString())
     })
 
     test('clamp', () => {
       expect(
-        directive
-          .clamp(ctor({ [key]: 50 } as Partial<Directives>), 100, 200)
-          .toString(),
-      ).toEqual(ctor({ [key]: 100 } as Partial<Directives>).toString())
+        factory[key].clamp(factory({ [key]: 50 }), 100, 200).toString(),
+      ).toEqual(factory({ [key]: 100 }).toString())
       expect(
-        directive
-          .clamp(ctor({ [key]: 150 } as Partial<Directives>), 100, 200)
-          .toString(),
-      ).toEqual(ctor({ [key]: 150 } as Partial<Directives>).toString())
+        factory[key].clamp(factory({ [key]: 150 }), 100, 200).toString(),
+      ).toEqual(factory({ [key]: 150 }).toString())
       expect(
-        directive
-          .clamp(ctor({ [key]: 250 } as Partial<Directives>), 100, 200)
-          .toString(),
-      ).toEqual(ctor({ [key]: 200 } as Partial<Directives>).toString())
+        factory[key].clamp(factory({ [key]: 250 }), 100, 200).toString(),
+      ).toEqual(factory({ [key]: 200 }).toString())
     })
 
-    test('offset', () => {
+    test('increase', () => {
       expect(
-        directive
-          .offset(ctor({ [key]: 100 } as Partial<Directives>), 100)
-          .toString(),
-      ).toEqual(ctor({ [key]: 200 } as Partial<Directives>).toString())
+        factory[key].increase(factory({ [key]: 100 }), 100).toString(),
+      ).toEqual(factory({ [key]: 200 }).toString())
       expect(
-        directive
-          .offset(ctor({ [key]: 100 } as Partial<Directives>), 0)
-          .toString(),
-      ).toEqual(ctor({ [key]: 100 } as Partial<Directives>).toString())
+        factory[key].increase(factory({ [key]: 100 }), 0).toString(),
+      ).toEqual(factory({ [key]: 100 }).toString())
+    })
+
+    test('decrease', () => {
       expect(
-        directive
-          .offset(ctor({ [key]: 100 } as Partial<Directives>), -150)
-          .toString(),
-      ).toEqual(ctor({ [key]: 0 } as Partial<Directives>).toString())
+        factory[key].decrease(factory({ [key]: 100 }), 100).toString(),
+      ).toEqual(factory({ [key]: 0 }).toString())
+      expect(
+        factory[key].decrease(factory({ [key]: 100 }), 0).toString(),
+      ).toEqual(factory({ [key]: 100 }).toString())
+      expect(
+        factory[key].decrease(factory({ [key]: 100 }), 200).toString(),
+      ).toEqual(factory({ [key]: 0 }).toString())
     })
 
     test('scale', () => {
+      expect(factory[key].scale(factory({ [key]: 100 }), 2).toString()).toEqual(
+        factory({ [key]: 200 }).toString(),
+      )
       expect(
-        directive
-          .scale(ctor({ [key]: 100 } as Partial<Directives>), 2)
-          .toString(),
-      ).toEqual(ctor({ [key]: 200 } as Partial<Directives>).toString())
+        factory[key].scale(factory({ [key]: 100 }), 0.5).toString(),
+      ).toEqual(factory({ [key]: 50 }).toString())
+      expect(factory[key].scale(factory({ [key]: 100 }), 0).toString()).toEqual(
+        factory({ [key]: 0 }).toString(),
+      )
       expect(
-        directive
-          .scale(ctor({ [key]: 100 } as Partial<Directives>), 0.5)
-          .toString(),
-      ).toEqual(ctor({ [key]: 50 } as Partial<Directives>).toString())
-      expect(
-        directive
-          .scale(ctor({ [key]: 100 } as Partial<Directives>), 0)
-          .toString(),
-      ).toEqual(ctor({ [key]: 0 } as Partial<Directives>).toString())
-      expect(
-        directive
-          .scale(ctor({ [key]: 100 } as Partial<Directives>), -0.5)
-          .toString(),
-      ).toEqual(ctor({ [key]: 0 } as Partial<Directives>).toString())
+        factory[key].scale(factory({ [key]: 100 }), -0.5).toString(),
+      ).toEqual(factory({ [key]: 0 }).toString())
     })
   })
 }

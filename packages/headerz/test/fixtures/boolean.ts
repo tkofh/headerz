@@ -1,134 +1,113 @@
 import { describe, expect, test } from 'vitest'
-import type { BooleanDirective } from '../../src/directives/boolean'
-import type { Duration } from '../../src/duration'
-import type { Header } from '../../src/header'
+import type { ValuesOf } from '../../src/directive'
+import type {
+  BooleanDirective,
+  BooleanOperations,
+} from '../../src/directives/boolean'
+import type { HeaderFactory } from '../../src/header'
 import type { KeysOfType } from '../../src/utils/types'
 
 export function describeBooleanDirective<
-  Bag extends Header<Record<string, boolean | Duration>>,
-  Key extends KeysOfType<Bag, boolean>,
-  Directives extends Record<string, unknown> = Bag extends Header<infer T>
-    ? T
+  const Factory extends HeaderFactory,
+  Inputs extends ValuesOf<Directives>,
+  Key extends KeysOfType<Inputs, boolean>,
+  Directives extends BooleanDirective<
+    string,
+    string
+  > = Factory extends HeaderFactory<infer D>
+    ? Extract<D, BooleanDirective<string, string>>
     : never,
->(
-  ctor: (input: Partial<Directives>) => Bag,
-  key: Key,
-  directive: BooleanDirective<Bag>,
-) {
+>(factory: Factory, key: Key) {
   describe(key, () => {
     test('set', () => {
-      expect(directive.set(ctor({}), true).toString()).toEqual(
-        ctor({ [key]: true } as Partial<Directives>).toString(),
+      expect(factory[key].set(factory({}), true).toString()).toEqual(
+        factory({ [key]: true }).toString(),
       )
       expect(
-        directive
-          .set(ctor({ [key]: false } as Partial<Directives>), true)
-          .toString(),
-      ).toEqual(ctor({ [key]: true } as Partial<Directives>).toString())
+        factory[key].set(factory({ [key]: false }), true).toString(),
+      ).toEqual(factory({ [key]: true }).toString())
 
       expect(
-        ctor({})
-          .pipe(directive.set(true) as unknown as (bag: Bag) => Bag)
+        factory({})
+          .pipe((factory[key] as BooleanOperations<string>).set(true))
           .toString(),
-      ).toEqual(ctor({ [key]: true } as Partial<Directives>).toString())
+      ).toEqual(factory({ [key]: true }).toString())
       expect(
-        ctor({ [key]: false } as Partial<Directives>)
-          .pipe(directive.set(true) as unknown as (bag: Bag) => Bag)
+        factory({ [key]: false })
+          .pipe((factory[key] as BooleanOperations<string>).set(true))
           .toString(),
-      ).toEqual(ctor({ [key]: true } as Partial<Directives>).toString())
+      ).toEqual(factory({ [key]: true }).toString())
     })
 
     test('negate', () => {
-      expect(
-        directive
-          .negate(ctor({ [key]: true } as Partial<Directives>))
-          .toString(),
-      ).toEqual(ctor({ [key]: false } as Partial<Directives>).toString())
+      expect(factory[key].negate(factory({ [key]: true })).toString()).toEqual(
+        factory({ [key]: false }).toString(),
+      )
+
+      expect(factory[key].negate(factory({ [key]: false })).toString()).toEqual(
+        factory({ [key]: true }).toString(),
+      )
 
       expect(
-        directive
-          .negate(ctor({ [key]: false } as Partial<Directives>))
-          .toString(),
-      ).toEqual(ctor({ [key]: true } as Partial<Directives>).toString())
-
-      expect(
-        directive
+        factory[key]
           .negate(
-            ctor({
+            factory({
               [key]: undefined,
-            } as Partial<Directives>),
+            }),
           )
           .toString(),
-      ).toEqual(ctor({ [key]: true } as Partial<Directives>).toString())
+      ).toEqual(factory({ [key]: true }).toString())
     })
 
     test('or', () => {
-      expect(directive.or(ctor({}), true).toString()).toEqual(
-        ctor({ [key]: true } as Partial<Directives>).toString(),
+      expect(factory[key].or(factory({}), true).toString()).toEqual(
+        factory({ [key]: true }).toString(),
       )
       expect(
-        directive
-          .or(ctor({ [key]: true } as Partial<Directives>), true)
-          .toString(),
-      ).toEqual(ctor({ [key]: true } as Partial<Directives>).toString())
+        factory[key].or(factory({ [key]: true }), true).toString(),
+      ).toEqual(factory({ [key]: true }).toString())
 
       expect(
-        directive
-          .or(ctor({ [key]: false } as Partial<Directives>), true)
-          .toString(),
-      ).toEqual(ctor({ [key]: true } as Partial<Directives>).toString())
+        factory[key].or(factory({ [key]: false }), true).toString(),
+      ).toEqual(factory({ [key]: true }).toString())
 
       expect(
-        directive
-          .or(ctor({ [key]: false } as Partial<Directives>), false)
-          .toString(),
-      ).toEqual(ctor({ [key]: false } as Partial<Directives>).toString())
+        factory[key].or(factory({ [key]: false }), false).toString(),
+      ).toEqual(factory({ [key]: false }).toString())
     })
 
     test('and', () => {
-      expect(directive.and(ctor({}), true).toString()).toEqual(
-        ctor({ [key]: false } as Partial<Directives>).toString(),
+      expect(factory[key].and(factory({}), true).toString()).toEqual(
+        factory({ [key]: false }).toString(),
       )
       expect(
-        directive
-          .and(ctor({ [key]: true } as Partial<Directives>), true)
-          .toString(),
-      ).toEqual(ctor({ [key]: true } as Partial<Directives>).toString())
+        factory[key].and(factory({ [key]: true }), true).toString(),
+      ).toEqual(factory({ [key]: true }).toString())
 
       expect(
-        directive
-          .and(ctor({ [key]: false } as Partial<Directives>), true)
-          .toString(),
-      ).toEqual(ctor({ [key]: false } as Partial<Directives>).toString())
+        factory[key].and(factory({ [key]: false }), true).toString(),
+      ).toEqual(factory({ [key]: false }).toString())
 
       expect(
-        directive
-          .and(ctor({ [key]: false } as Partial<Directives>), false)
-          .toString(),
-      ).toEqual(ctor({ [key]: false } as Partial<Directives>).toString())
+        factory[key].and(factory({ [key]: false }), false).toString(),
+      ).toEqual(factory({ [key]: false }).toString())
     })
 
     test('xor', () => {
-      expect(directive.xor(ctor({}), true).toString()).toEqual(
-        ctor({ [key]: true } as Partial<Directives>).toString(),
+      expect(factory[key].xor(factory({}), true).toString()).toEqual(
+        factory({ [key]: true }).toString(),
       )
       expect(
-        directive
-          .xor(ctor({ [key]: true } as Partial<Directives>), true)
-          .toString(),
-      ).toEqual(ctor({ [key]: false } as Partial<Directives>).toString())
+        factory[key].xor(factory({ [key]: true }), true).toString(),
+      ).toEqual(factory({ [key]: false }).toString())
 
       expect(
-        directive
-          .xor(ctor({ [key]: false } as Partial<Directives>), true)
-          .toString(),
-      ).toEqual(ctor({ [key]: true } as Partial<Directives>).toString())
+        factory[key].xor(factory({ [key]: false }), true).toString(),
+      ).toEqual(factory({ [key]: true }).toString())
 
       expect(
-        directive
-          .xor(ctor({ [key]: false } as Partial<Directives>), false)
-          .toString(),
-      ).toEqual(ctor({ [key]: false } as Partial<Directives>).toString())
+        factory[key].xor(factory({ [key]: false }), false).toString(),
+      ).toEqual(factory({ [key]: false }).toString())
     })
   })
 }

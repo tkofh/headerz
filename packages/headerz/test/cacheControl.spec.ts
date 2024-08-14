@@ -1,15 +1,5 @@
-import { describe } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { cacheControl } from '../src'
-// import {
-//   normalizeRequestCacheControl,
-//   parseRequestCacheControl,
-//   validateRequestCacheControl,
-// } from '../src/cacheControl/request'
-// import {
-//   normalizeResponseCacheControl,
-//   parseResponseCacheControl,
-//   validateResponseCacheControl,
-// } from '../src/cacheControl/response'
 import { describeBooleanDirective } from './fixtures/boolean'
 import { describeDurationDirective } from './fixtures/duration'
 
@@ -45,59 +35,61 @@ const responseDurationDirectives = [
 ] as const
 
 describe('request', () => {
-  for (const [key, directive] of requestBooleanDirectives) {
-    describeBooleanDirective(cacheControl.request, key, directive)
+  for (const [key, _directive] of requestBooleanDirectives) {
+    describeBooleanDirective(cacheControl.request, key)
   }
-  for (const [key, directive] of requestDurationDirectives) {
-    describeDurationDirective(cacheControl.request, key, directive)
+  for (const [key, _directive] of requestDurationDirectives) {
+    describeDurationDirective(cacheControl.request, key)
   }
 
-  // test('parse', () => {
-  //   expect(parseRequestCacheControl('max-age=100')).toEqual(
-  //     cacheControl.request({ maxAge: 100 }),
-  //   )
-  //   expect(parseRequestCacheControl('max-age=100, no-cache')).toEqual(
-  //     cacheControl.request({ maxAge: 100, noCache: true }),
-  //   )
-  //   expect(parseRequestCacheControl('max-age=100, no-cache, no-store')).toEqual(
-  //     cacheControl.request({
-  //       maxAge: 100,
-  //       noCache: true,
-  //       noStore: true,
-  //     }),
-  //   )
-  // })
-  //
-  // test('normalize', () => {
-  //   expect(normalizeRequestCacheControl('max-age=100')).toEqual('max-age=100')
-  //   expect(normalizeRequestCacheControl('no-cache, max-age=100')).toEqual(
-  //     'max-age=100,no-cache',
-  //   )
-  //   expect(
-  //     normalizeRequestCacheControl('max-age=100, no-cache, no-store'),
-  //   ).toEqual('no-store')
-  // })
-  //
-  // test('validate', () => {
-  //   expect(validateRequestCacheControl('max-age=100')).toEqual(true)
-  //   expect(validateRequestCacheControl('max-age=100, no-cache')).toEqual(true)
-  //   expect(
-  //     validateRequestCacheControl('max-age=100, no-cache, no-store'),
-  //   ).toEqual(true)
-  //   expect(
-  //     validateRequestCacheControl(
-  //       'max-age=100, no-cache, no-store, max-age=100',
-  //     ),
-  //   ).toEqual(false)
-  // })
+  test('parse', () => {
+    expect(cacheControl.request.parse('max-age=100')).toEqual(
+      cacheControl.request({ maxAge: 100 }),
+    )
+    expect(cacheControl.request.parse('max-age=100, no-cache')).toEqual(
+      cacheControl.request({ maxAge: 100, noCache: true }),
+    )
+    expect(
+      cacheControl.request.parse('max-age=100, no-cache, no-store'),
+    ).toEqual(
+      cacheControl.request({
+        maxAge: 100,
+        noCache: true,
+        noStore: true,
+      }),
+    )
+  })
+
+  test('normalize', () => {
+    expect(cacheControl.request.normalize('max-age=100')).toEqual('max-age=100')
+    expect(cacheControl.request.normalize('no-cache, max-age=100')).toEqual(
+      'max-age=100,no-cache',
+    )
+    expect(
+      cacheControl.request.normalize('max-age=100, no-cache, no-store'),
+    ).toEqual('no-store')
+  })
+
+  test('validate', () => {
+    expect(cacheControl.request.validate('max-age=100')).toEqual(true)
+    expect(cacheControl.request.validate('max-age=100, no-cache')).toEqual(true)
+    expect(
+      cacheControl.request.validate('max-age=100, no-cache, no-store'),
+    ).toEqual(true)
+    expect(
+      cacheControl.request.validate(
+        'max-age=100, no-cache, no-store, max-age=100',
+      ),
+    ).toEqual(false)
+  })
 })
 
 describe('response', () => {
-  for (const [key, directive] of responseBooleanDirectives) {
-    describeBooleanDirective(cacheControl.response, key, directive)
+  for (const [key, _directive] of responseBooleanDirectives) {
+    describeBooleanDirective(cacheControl.response, key)
   }
-  for (const [key, directive] of responseDurationDirectives) {
-    describeDurationDirective(cacheControl.response, key, directive)
+  for (const [key, _directive] of responseDurationDirectives) {
+    describeDurationDirective(cacheControl.response, key)
   }
 
   // test('parse', () => {
