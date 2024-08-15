@@ -1,6 +1,6 @@
 {
   "name": "headerz",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "Tim Morris <timthewebguy@gmail.com>",
   "repository": {
     "type": "git",
@@ -56,6 +56,11 @@
       "import": "./dist/cache-control.mjs",
       "types": "./dist/cache-control.d.ts"
     },
+    "./content-security-policy": {
+      "require": "./dist/content-security-policy.cjs",
+      "import": "./dist/content-security-policy.mjs",
+      "types": "./dist/content-security-policy.d.ts"
+    },
     "./cross-origin-embedder-policy": {
       "require": "./dist/cross-origin-embedder-policy.cjs",
       "import": "./dist/cross-origin-embedder-policy.mjs",
@@ -70,11 +75,6 @@
       "require": "./dist/cross-origin-resource-policy.cjs",
       "import": "./dist/cross-origin-resource-policy.mjs",
       "types": "./dist/cross-origin-resource-policy.d.ts"
-    },
-    "./csp": {
-      "require": "./dist/csp.cjs",
-      "import": "./dist/csp.mjs",
-      "types": "./dist/csp.d.ts"
     },
     "./strict-transport-security": {
       "require": "./dist/strict-transport-security.cjs",

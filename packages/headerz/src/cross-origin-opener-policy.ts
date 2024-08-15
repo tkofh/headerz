@@ -1,8 +1,8 @@
 import { keyword } from './directives/keyword'
-import { createHeader } from './header'
+import { type HeaderInputs, createHeader } from './header'
 import { isString } from './utils/predicates'
 
-export type CrossOriginOpenerPolicy =
+type CrossOriginOpenerPolicyValue =
   | 'unsafe-none'
   | 'same-origin'
   | 'same-origin-allow-popups'
@@ -16,7 +16,7 @@ const directives = [
 const directive = keyword('directive', 'directive', {
   separator: ' ',
   literal: true,
-  isKeyword: (value): value is CrossOriginOpenerPolicy =>
+  isKeyword: (value): value is CrossOriginOpenerPolicyValue =>
     isString(value) && directives.includes(value as never),
 })
 
@@ -36,3 +36,7 @@ console.log(
     directive: 'same-origin',
   }).pipe(crossOriginOpenerPolicy.directive.set('unsafe-none')),
 )
+
+export type CrossOriginOpenerPolicy = HeaderInputs<
+  typeof crossOriginOpenerPolicy
+>

@@ -1,7 +1,5 @@
 import { string } from './directives/string'
-import { createHeader } from './header'
-
-export type AccessControlAllowOrigin = '*' | 'null' | (string & {})
+import { type HeaderInputs, createHeader } from './header'
 
 const origin = string('origin', 'origin', {
   separator: ',',
@@ -18,3 +16,7 @@ export const accessControlAllowOrigin = createHeader(
     },
   },
 )
+
+export type AccessControlAllowOrigin = HeaderInputs<
+  typeof accessControlAllowOrigin
+>

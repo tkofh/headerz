@@ -1,5 +1,5 @@
 import { list } from './directives/list'
-import { createHeader } from './header'
+import { type HeaderInputs, createHeader } from './header'
 
 const methods = [
   'GET',
@@ -45,3 +45,7 @@ export const accessControlAllowMethods = createHeader(
     },
   },
 )
+
+export type AccessControlAllowMethods = HeaderInputs<
+  typeof accessControlAllowMethods
+>

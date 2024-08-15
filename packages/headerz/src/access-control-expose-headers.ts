@@ -1,5 +1,5 @@
 import { list } from './directives/list'
-import { createHeader } from './header'
+import { type HeaderInputs, createHeader } from './header'
 
 const headers = list('headers', 'headers', {
   isElement: (value) => typeof value === 'string',
@@ -27,3 +27,7 @@ export const accessControlExposeHeaders = createHeader(
     },
   },
 )
+
+export type AccessControlExposeHeaders = HeaderInputs<
+  typeof accessControlExposeHeaders
+>

@@ -1,5 +1,11 @@
 # headerz
 
+## 0.2.1
+
+### Patch Changes
+
+- e92b10a: add more headers, mostly cors and some security ones
+
 ## 0.2.0
 
 ### Minor Changes

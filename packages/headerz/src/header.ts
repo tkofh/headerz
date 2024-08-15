@@ -42,6 +42,10 @@ export interface Header<Directives extends Record<string, unknown>> {
   toValueString(): string
 }
 
+export type HeaderInputs<H> = H extends HeaderFactory<infer D>
+  ? InputsOf<D>
+  : never
+
 interface HeaderOptions<Directives extends AnyDirective> {
   separator: string
   transform: (

@@ -1,6 +1,6 @@
 import { boolean } from './directives/boolean'
 import { duration } from './directives/duration'
-import { createHeader } from './header'
+import { type HeaderInputs, createHeader } from './header'
 import { hasProperty } from './utils/predicates'
 
 const maxAge = duration('max-age', 'maxAge')
@@ -21,3 +21,7 @@ export const strictTransportSecurity = createHeader(
     },
   },
 )
+
+export type StrictTransportSecurity = HeaderInputs<
+  typeof strictTransportSecurity
+>

@@ -1,5 +1,5 @@
 import { duration } from './directives/duration'
-import { createHeader } from './header'
+import { type HeaderInputs, createHeader } from './header'
 
 const allow = duration('maxAge', 'maxAge', true)
 
@@ -19,3 +19,5 @@ console.log(
     maxAge: 100,
   }).pipe(accessControlMaxAge.maxAge.set(200)),
 )
+
+export type AccessControlMaxAge = HeaderInputs<typeof accessControlMaxAge>

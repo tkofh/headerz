@@ -2,7 +2,7 @@ import { boolean } from './directives/boolean'
 import { keyword } from './directives/keyword'
 import { list } from './directives/list'
 import { string } from './directives/string'
-import { createHeader } from './header'
+import { type HeaderInputs, createHeader } from './header'
 import { isString } from './utils/predicates'
 
 export type CSPFrameAncestorsValue =
@@ -174,7 +174,7 @@ const upgradeInsecureRequests = boolean(
   'upgradeInsecureRequests',
 )
 
-export const csp = createHeader(
+export const contentSecurityPolicy = createHeader(
   'content-security-policy',
   [
     childSrc,
@@ -206,16 +206,4 @@ export const csp = createHeader(
   },
 )
 
-console.log(
-  csp({
-    childSrc: ["'self'", 'https:'],
-    upgradeInsecureRequests: true,
-    reportTo: 'my-report-group',
-    sandbox: 'allow-downloads',
-  }).pipe(
-    csp.defaultSrc.include('https:'),
-    csp.childSrc.include("'none'"),
-    csp.sandbox.set('allow-same-origin'),
-    csp.sandbox.unset,
-  ),
-)
+export type ContentSecurityPolicy = HeaderInputs<typeof contentSecurityPolicy>

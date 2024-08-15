@@ -1,6 +1,6 @@
 import { boolean } from './directives/boolean'
 import { duration } from './directives/duration'
-import { createHeader } from './header'
+import { type HeaderInputs, createHeader } from './header'
 import { hasProperty } from './utils/predicates'
 
 // common
@@ -78,6 +78,9 @@ export const request = createHeader(
     },
   },
 )
+
+export type CacheControlRequest = HeaderInputs<typeof request>
+export type CacheControlResponse = HeaderInputs<typeof response>
 
 export const cacheControl = {
   request,

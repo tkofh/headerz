@@ -1,5 +1,5 @@
 import { boolean } from './directives/boolean'
-import { createHeader } from './header'
+import { type HeaderInputs, createHeader } from './header'
 
 const allow = boolean('allow', 'allow', true)
 
@@ -13,3 +13,7 @@ export const accessControlAllowCredentials = createHeader(
     },
   },
 )
+
+export type AccessControlAllowCredentials = HeaderInputs<
+  typeof accessControlAllowCredentials
+>

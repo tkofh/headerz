@@ -1,5 +1,5 @@
 import { boolean } from './directives/boolean'
-import { createHeader } from './header'
+import { type HeaderInputs, createHeader } from './header'
 
 const noSniff = boolean('nosniff', 'nosniff')
 
@@ -13,3 +13,5 @@ export const xContentTypeOptions = createHeader(
     },
   },
 )
+
+export type XContentTypeOptions = HeaderInputs<typeof xContentTypeOptions>
