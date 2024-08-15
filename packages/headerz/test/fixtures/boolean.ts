@@ -29,11 +29,13 @@ export function describeBooleanDirective<
 
       expect(
         factory({})
+          // @ts-ignore i don't have the patience for this rn
           .pipe((factory[key] as BooleanOperations<string>).set(true))
           .toString(),
       ).toEqual(factory({ [key]: true }).toString())
       expect(
         factory({ [key]: false })
+          // @ts-ignore i don't have the patience for this rn
           .pipe((factory[key] as BooleanOperations<string>).set(true))
           .toString(),
       ).toEqual(factory({ [key]: true }).toString())

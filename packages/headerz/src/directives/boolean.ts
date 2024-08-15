@@ -52,9 +52,10 @@ export type BooleanOperations<K extends string> = ReturnType<
 function stringifyBoolean(
   value: boolean,
   self: Directive<string, string, boolean>,
+  literal?: boolean,
 ): string | null {
   if (value) {
-    return self.name
+    return literal ? 'true' : self.name
   }
   return null
 }
@@ -69,13 +70,14 @@ function parseBoolean(
 export function boolean<const N extends string, const K extends string>(
   name: N,
   key: K,
+  literal?: boolean,
 ): Directive<N, K, boolean, BooleanOperations<K>> {
   return createDirective({
     name,
     key,
     validate: isBoolean,
     parse: parseBoolean,
-    stringify: stringifyBoolean,
+    stringify: (value, self) => stringifyBoolean(value, self, literal),
     operations: createBooleanOperations(key),
   })
 }

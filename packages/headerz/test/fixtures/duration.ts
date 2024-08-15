@@ -2,8 +2,8 @@ import { describe, expect, test } from 'vitest'
 import type { ValuesOf } from '../../src/directive'
 import type { BooleanDirective } from '../../src/directives/boolean'
 import type { DurationDirective } from '../../src/directives/duration'
+import type { Duration } from '../../src/duration'
 import type { HeaderFactory } from '../../src/header'
-import type { Duration } from '../../src/toNumber'
 import type { KeysOfType } from '../../src/utils/types'
 
 export function describeDurationDirective<

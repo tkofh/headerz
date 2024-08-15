@@ -1,6 +1,6 @@
 import { type Directive, createDirective } from '../directive'
+import { type Duration, type DurationUnit, toNumber } from '../duration'
 import { type Header, isHeader } from '../header'
-import { type Duration, type DurationUnit, toNumber } from '../toNumber'
 import { dual } from '../utils/function'
 import { isNumber, isString } from '../utils/predicates'
 
@@ -335,9 +335,14 @@ function parseDuration(
 function stringifyDuration(
   value: Duration | false,
   self: Directive<string, string, number>,
+  literal?: boolean,
 ): string {
   if (value === undefined) {
     return ''
+  }
+
+  if (literal) {
+    return value.toString()
   }
 
   return `${self.name}=${value.toString()}`
@@ -346,13 +351,14 @@ function stringifyDuration(
 export function duration<const N extends string, const K extends string>(
   name: N,
   key: K,
+  literal?: boolean,
 ): Directive<N, K, number, DurationOperations<K>, Duration> {
   return createDirective({
     name,
     key,
     validate: isNumber,
     parse: parseDuration,
-    stringify: stringifyDuration,
+    stringify: (value, self) => stringifyDuration(value, self, literal),
     operations: createDurationOperations(key),
     translate: (input) => toNumber(input),
   })

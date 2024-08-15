@@ -30,8 +30,11 @@ export interface Header<Directives extends Record<string, unknown>> {
     const Directive extends keyof Directives,
     const Value extends Directives[Directive] | undefined,
   >(directive: Directive, value: Value): this
-  pipe<A extends Header<Directives>, R>(
-    ...fns: [...Array<MapFn<A>>, FinalMapFn<A, R>]
+  pipe<R>(
+    ...fns: [
+      ...Array<MapFn<Header<Directives>>>,
+      FinalMapFn<Header<Directives>, R>,
+    ]
   ): R
 
   toHeaderString(): string

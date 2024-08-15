@@ -1,44 +1,13 @@
 {
   "name": "headerz",
   "version": "0.2.0",
-  "description": "Type helpers for headers",
   "author": "Tim Morris <timthewebguy@gmail.com>",
-  "homepage": "https://github.com/tkofh/headerz#readme",
-  "license": "MIT",
-  "sideEffects": false,
-  "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
-    },
-    "./cache-control": {
-      "require": "./dist/cache-control.cjs",
-      "import": "./dist/cache-control.mjs",
-      "types": "./dist/cache-control.d.ts"
-    }
-  },
-  "files": ["dist"],
-  "publishConfig": {
-    "access": "public"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tkofh/headerz.git"
   },
-  "scripts": {
-    "build": "unbuild",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "prepublish": "bun run build"
-  },
-  "bugs": {
-    "url": "https://github.com/tkofh/headerz/issues"
-  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
   "devDependencies": {
     "@types/node": "^22.1.0",
     "@vitest/coverage-v8": "^2.0.5",
@@ -46,5 +15,95 @@
     "unbuild": "^2.0.0",
     "vitest": "^2.0.5"
   },
-  "dependencies": {}
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./access-control-allow-credentials": {
+      "require": "./dist/access-control-allow-credentials.cjs",
+      "import": "./dist/access-control-allow-credentials.mjs",
+      "types": "./dist/access-control-allow-credentials.d.ts"
+    },
+    "./access-control-allow-headers": {
+      "require": "./dist/access-control-allow-headers.cjs",
+      "import": "./dist/access-control-allow-headers.mjs",
+      "types": "./dist/access-control-allow-headers.d.ts"
+    },
+    "./access-control-allow-methods": {
+      "require": "./dist/access-control-allow-methods.cjs",
+      "import": "./dist/access-control-allow-methods.mjs",
+      "types": "./dist/access-control-allow-methods.d.ts"
+    },
+    "./access-control-allow-origin": {
+      "require": "./dist/access-control-allow-origin.cjs",
+      "import": "./dist/access-control-allow-origin.mjs",
+      "types": "./dist/access-control-allow-origin.d.ts"
+    },
+    "./access-control-expose-headers": {
+      "require": "./dist/access-control-expose-headers.cjs",
+      "import": "./dist/access-control-expose-headers.mjs",
+      "types": "./dist/access-control-expose-headers.d.ts"
+    },
+    "./access-control-max-age": {
+      "require": "./dist/access-control-max-age.cjs",
+      "import": "./dist/access-control-max-age.mjs",
+      "types": "./dist/access-control-max-age.d.ts"
+    },
+    "./cache-control": {
+      "require": "./dist/cache-control.cjs",
+      "import": "./dist/cache-control.mjs",
+      "types": "./dist/cache-control.d.ts"
+    },
+    "./cross-origin-embedder-policy": {
+      "require": "./dist/cross-origin-embedder-policy.cjs",
+      "import": "./dist/cross-origin-embedder-policy.mjs",
+      "types": "./dist/cross-origin-embedder-policy.d.ts"
+    },
+    "./cross-origin-opener-policy": {
+      "require": "./dist/cross-origin-opener-policy.cjs",
+      "import": "./dist/cross-origin-opener-policy.mjs",
+      "types": "./dist/cross-origin-opener-policy.d.ts"
+    },
+    "./cross-origin-resource-policy": {
+      "require": "./dist/cross-origin-resource-policy.cjs",
+      "import": "./dist/cross-origin-resource-policy.mjs",
+      "types": "./dist/cross-origin-resource-policy.d.ts"
+    },
+    "./csp": {
+      "require": "./dist/csp.cjs",
+      "import": "./dist/csp.mjs",
+      "types": "./dist/csp.d.ts"
+    },
+    "./strict-transport-security": {
+      "require": "./dist/strict-transport-security.cjs",
+      "import": "./dist/strict-transport-security.mjs",
+      "types": "./dist/strict-transport-security.d.ts"
+    },
+    "./x-content-type-options": {
+      "require": "./dist/x-content-type-options.cjs",
+      "import": "./dist/x-content-type-options.mjs",
+      "types": "./dist/x-content-type-options.d.ts"
+    }
+  },
+  "bugs": {
+    "url": "https://github.com/tkofh/headerz/issues"
+  },
+  "description": "Type helpers for headers",
+  "files": ["dist"],
+  "homepage": "https://github.com/tkofh/headerz#readme",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "unbuild",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "prepublish": "bun run build"
+  },
+  "sideEffects": false,
+  "type": "module",
+  "types": "./dist/index.d.ts"
 }
